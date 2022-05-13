@@ -103,7 +103,7 @@ void communicate_PC104()
             Eigen::Vector2d direct_2d = direct_RW.head(2).normalized();
             double dis_AW = goal_AW.dot(direct_2d);
             LOG(INFO)<<dis_AW<<endl;
-            double dis_walk = dis_AW - 0.15;// 前脚掌
+            double dis_walk = dis_AW - 0.19;// 前脚掌
             assert(dis_walk>0 && "dis error");
             double theta = acos(abs(direct_RW(0)));
             LOG(INFO)<<"THETA IS "<<theta * 57.3<<endl;
@@ -254,29 +254,29 @@ void communicate_PC104()
             cout<<"plane detection and step planning cost "<<duration<<endl;
             LOG(INFO)<<"step size "<<steps_result.size()<<endl;
             // 画步态点
-            for (auto step_iter : steps_result)
-            {
-                std::array<Eigen::Vector3d, 4> edge_points;// 27 10 5 14.5
-                edge_points.at(0) = Eigen::Vector3d(0.17, -0.05, 0.0);
-                edge_points.at(1) = Eigen::Vector3d(0.17,  0.095, 0.0);
-                edge_points.at(2) = Eigen::Vector3d(- 0.1, 0.095, 0.0);
-                edge_points.at(3) = Eigen::Vector3d(-0.1, -0.05, 0.0);
-                LOG(INFO)<<"GET EDGE POINTS"<<endl;
-                Eigen::AngleAxisd r_v(step_iter.theta, Eigen::Vector3d(0,0,1));
-                std::array<Eigen::Vector3d, 4> draw_points;
-                std::vector<double> x, y;
-                x.reserve(4); y.reserve(4);
-                for (size_t i = 0; i < 4; i++)
-                {
-                    draw_points.at(i) = r_v.matrix() * edge_points.at(i) + Eigen::Vector3d(step_iter.x, step_iter.y, step_iter.z);
-                    x.emplace_back(draw_points.at(i)(0));
-                    y.emplace_back(draw_points.at(i)(1));
-                }
-                LOG(INFO)<<"get x and y"<<endl;
-                matplotlibcpp::plot(y, x);
-            }
+            // for (auto step_iter : steps_result)
+            // {
+            //     std::array<Eigen::Vector3d, 4> edge_points;// 27 10 5 14.5
+            //     edge_points.at(0) = Eigen::Vector3d(0.17, -0.05, 0.0);
+            //     edge_points.at(1) = Eigen::Vector3d(0.17,  0.095, 0.0);
+            //     edge_points.at(2) = Eigen::Vector3d(- 0.1, 0.095, 0.0);
+            //     edge_points.at(3) = Eigen::Vector3d(-0.1, -0.05, 0.0);
+            //     LOG(INFO)<<"GET EDGE POINTS"<<endl;
+            //     Eigen::AngleAxisd r_v(step_iter.theta, Eigen::Vector3d(0,0,1));
+            //     std::array<Eigen::Vector3d, 4> draw_points;
+            //     std::vector<double> x, y;
+            //     x.reserve(4); y.reserve(4);
+            //     for (size_t i = 0; i < 4; i++)
+            //     {
+            //         draw_points.at(i) = r_v.matrix() * edge_points.at(i) + Eigen::Vector3d(step_iter.x, step_iter.y, step_iter.z);
+            //         x.emplace_back(draw_points.at(i)(0));
+            //         y.emplace_back(draw_points.at(i)(1));
+            //     }
+            //     LOG(INFO)<<"get x and y"<<endl;
+            //     matplotlibcpp::plot(y, x);
+            // }
             
-            matplotlibcpp::show();
+            // matplotlibcpp::show();
 
             if (!return_flag)
             {

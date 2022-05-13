@@ -20,12 +20,13 @@ find_package(PythonLibs REQUIRED)
 include_directories(
   include/mutiThread_perception
   include/ART
+  include
   ${EIGEN3_INCLUDE_DIRS}
   ${GLOG_INCLUDE_DIRS}
   ${PYTHON_INCLUDE_DIRS}
 )
-add_compile_options(-pthread)
-
+# add_compile_options(-pthread)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 aux_source_directory(src/ART DIR_SRCS)
 message(${DIR_SRCS})
 aux_source_directory(src DIR_SRCS)
