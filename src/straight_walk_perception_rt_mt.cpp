@@ -91,7 +91,7 @@ void communicate_PC104()
 
             LOG(INFO)<<"mark_IN_AW: "<<endl<<mark_IN_AW<<endl;
             // 转换到aim坐标系求取step
-            Eigen::Matrix4d AW_IN_RW = mark_IN_AW.inverse() * mark_IN_RW;
+            Eigen::Matrix4d AW_IN_RW = mark_IN_RW * mark_IN_AW.inverse() ;
             LOG(INFO)<<"AW_IN_RW: "<<endl<<AW_IN_RW<<endl;
             // 台阶朝向
             Eigen::Vector3d direct_AW = Eigen::Vector3d::UnitX();
@@ -105,7 +105,7 @@ void communicate_PC104()
             LOG(INFO)<<dis_AW<<endl;
             double dis_walk = dis_AW - 0.19;// 前脚掌
             assert(dis_walk>0 && "dis error");
-            double theta = acos(abs(direct_RW(0)));
+            double theta = acos(abs(direct_2d(0)));
             LOG(INFO)<<"THETA IS "<<theta * 57.3<<endl;
             double goal_dis = dis_walk;
 
@@ -133,7 +133,7 @@ void communicate_PC104()
             // LOG(ERROR)<<"THETA : "<<theta<<endl;
             struct line_step
             {
-            double x, y, theta;
+                double x, y, theta;
             };
             vector<footstep> steps_result;
             if (direct_2d(1) < 0)//右转
