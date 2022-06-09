@@ -7,6 +7,7 @@ project(mutiThread_perception_tag)
 
 find_package(Eigen3 REQUIRED)
 find_package(Glog REQUIRED)
+find_package(FootstepPlanner REQUIRED)
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 find_package(Python3 COMPONENTS NumPy)
 find_package(PythonLibs REQUIRED)
@@ -25,6 +26,7 @@ include_directories(
   ${GLOG_INCLUDE_DIRS}
   ${PYTHON_INCLUDE_DIRS}
 )
+link_libraries(FootstepPlanner)
 # add_compile_options(-pthread)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 aux_source_directory(src/ART DIR_SRCS)
