@@ -7,7 +7,7 @@
 #include <Eigen/Core>
 // param 参数分别为 goalX， goalY， goalyaw, point1.x ... point4.y
 // clockwise_ 1为顺时针，0为逆时针
-std::vector<std::pair<Eigen::Vector3d, bool> > foot_step_planning(std::vector<double> param_dis, int clockwise_)
+std::vector<std::pair<Eigen::Vector3d, bool> > foot_step_planning(std::vector<double> param_dis, int clockwise_, double start_x_)
 {
     assert(param_dis.size() == 11 && "your entered param is wrong");
     assert(clockwise_ == 0 || clockwise_ == 1 && "points direct is wrong");
@@ -41,7 +41,7 @@ std::vector<std::pair<Eigen::Vector3d, bool> > foot_step_planning(std::vector<do
 
     param.SetMaxStepLength(param, 0.12);
     param.SetMinStepLength(param,-0.12);
-    param.SetMaxStepWidth(param,0.22);
+    param.SetMaxStepWidth(param,0.24);
     param.SetMinStepWidth(param,0.16);
     param.SetMaxStepReach(param,sqrt(param.MaxStepWidth * param.MaxStepWidth + param.MaxStepLength * param.MaxStepLength));
 
@@ -52,7 +52,7 @@ std::vector<std::pair<Eigen::Vector3d, bool> > foot_step_planning(std::vector<do
     std:: cout<< "EdgeCost Weight Yaw is "<<param.getEdgeCostYaw(param)<<std::endl; 
     // define the initial and final pose
 
-    double startX = 0.0;
+    double startX = start_x_;
     double startY = 0.0;
     double startZ = 0.0;
     double startYaw = 0.0/180.0 * pi;

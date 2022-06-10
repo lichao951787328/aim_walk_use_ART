@@ -13,6 +13,7 @@
 #include "type.h"
 #include "matplotlibcpp.h"
 #include "foot_step_planning_ljh.h"
+#include <fstream>
 // 记录相机深度数据和imu数据
 std::mutex m, m_tcpip;
 Eigen::Matrix4d mark_pose;
@@ -68,6 +69,52 @@ void communicate_PC104()
         if (lastFlag == 'A' && currentFlag == 'B')
         {
             LOG(INFO)<<"GOOOOOOOOOOO"<<endl;
+
+            // vector<footstep> send_steps;
+            // send_steps.reserve(19);
+            // ifstream in("../steps.txt");
+            // for (size_t i = 0; i < 19; i++)
+            // {
+            //     footstep tmpstep;
+            //     in>>tmpstep.is_left;
+            //     in>>tmpstep.x;
+            //     in>>tmpstep.y;
+            //     in>>tmpstep.z;
+            //     in>>tmpstep.theta;
+            //     send_steps.emplace_back(tmpstep);
+            // }
+            // in.close();
+            // LOG(INFO)<<"STEP PLANNING RESULTS:"<<endl;
+            // for (auto & iter_step : send_steps)
+            // {
+            //     LOG(INFO)<<iter_step.is_left<<" "<<iter_step.x<<" "<<iter_step.y<<" "<<iter_step.z<<" "<<iter_step.theta<<endl;
+            // }
+            // struct sendddata
+            // {
+            //     int n;
+            //     footstep steps[25];
+            // };
+            // assert(send_steps.size() <= 25 && "the plan steps is big than 25, you should turn the senddata buffer more ...");
+            // sendddata SENDdata;
+            // SENDdata.n = send_steps.size();
+            // for (size_t i = 0; i < send_steps.size(); i++)
+            // {
+            //     SENDdata.steps[i].is_left = send_steps.at(i).is_left;
+            //     SENDdata.steps[i].x = send_steps.at(i).x;
+            //     SENDdata.steps[i].y = send_steps.at(i).y;
+            //     SENDdata.steps[i].z = send_steps.at(i).z;
+            //     SENDdata.steps[i].theta = send_steps.at(i).theta;
+            // }
+            // cout<<"size of sendddata "<<sizeof(sendddata)<<endl;
+            // if (com.sendSteps((char*)(&SENDdata), sizeof(sendddata)) == -1)
+            // {
+            //     perror("send error");
+            //     exit(1);
+            // }
+            // lastFlag = 'A';
+            // currentFlag = 'A';
+            // continue;
+
             start = clock();
             // 确定mark相对于机器人世界坐标的位姿
             Eigen::AngleAxisd z_rot(_deg2rad(-61.85), Eigen::Vector3d::UnitZ());
@@ -173,9 +220,11 @@ void communicate_PC104()
             // Eigen::Vector2d goal_ljh = line_point - direct_2d * (0.19 - 0.08);
             std::vector<double> param;
             // double yaw = direct_2d(1) > 0 ? theta : - theta;
-            param.emplace_back(goal2d(0));
+            // 0.015是从脚踝坐标系转到base坐标系
+            param.emplace_back(goal2d(0) + 0.015);
             param.emplace_back(goal2d(1));
             param.emplace_back(yaw);
+            // param.emplace_back(-PI/2.0);
 
             param.emplace_back(p1.x());
             param.emplace_back(p1.y());
@@ -186,7 +235,8 @@ void communicate_PC104()
             param.emplace_back(p4.x());
             param.emplace_back(p4.y());
             assert(param.size() == 11);
-            vector<std::pair<Eigen::Vector3d, bool> > steps = foot_step_planning(param, 0);
+            // 0.015 是base坐标系是x是0，脚踝相对于base往前了0.015
+            vector<std::pair<Eigen::Vector3d, bool> > steps = foot_step_planning(param, 0, 0.015);
             vector<footstep> steps_result;
             steps_result.clear();
             vector<std::pair<Eigen::Vector3d, bool> >::iterator iter_foot_step_ljh = steps.begin()+2;
@@ -196,7 +246,7 @@ void communicate_PC104()
                 tmpstep.is_left = iter_foot_step_ljh->second;
                 tmpstep.x = iter_foot_step_ljh->first(0);
                 tmpstep.y = iter_foot_step_ljh->first(1);
-                tmpstep.z = 0.0;
+                tmpstep.z = 0.1564;// 衔接孟祥轨迹高度。0.1564
                 tmpstep.theta = iter_foot_step_ljh->first(2);
                 steps_result.emplace_back(tmpstep);
             }
@@ -214,7 +264,6 @@ void communicate_PC104()
             // double dis_tag = 0.1 + 0.17;// 此为粘贴时测量
             // Eigen::Vector2d walk_goal = goal - dis_tag * direct_2d;
             // // 至此，便得到了方向和目标点
-
             // // double dis = abs(walk_goal.dot(direct_2d));
             // double goal_dis = walk_goal.norm();
             // // double goal_dis = dis - 0.17;//前脚长15cm + 1cm阈值
@@ -409,9 +458,9 @@ void communicate_PC104()
                 struct sendddata
                 {
                     int n;
-                    footstep steps[16];
+                    footstep steps[25];
                 };
-
+                assert(send_steps.size() <= 25 && "the plan steps is big than 25, you should turn the senddata buffer more ...");
                 sendddata SENDdata;
                 SENDdata.n = send_steps.size();
                 for (size_t i = 0; i < send_steps.size(); i++)
@@ -429,9 +478,7 @@ void communicate_PC104()
                     perror("send error");
                     exit(1);
                 }
-
                 // DRAW
-                
             }
             lastFlag = 'A';
             currentFlag = 'A';
@@ -462,11 +509,7 @@ int communicate_ART()
     // 此处初始化
     LOG(INFO)<<"listen art data..."<<endl;
     unsigned short port = 6324;
-
-	// initialization:
-    
 	dt = new DTrackSDK( port );
-
 	if ( ! dt->isDataInterfaceValid() )
 	{
 		std::cout << "DTrackSDK init error" << std::endl;
