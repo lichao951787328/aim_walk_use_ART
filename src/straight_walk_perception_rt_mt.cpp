@@ -246,7 +246,7 @@ void communicate_PC104()
                 tmpstep.is_left = iter_foot_step_ljh->second;
                 tmpstep.x = iter_foot_step_ljh->first(0);
                 tmpstep.y = iter_foot_step_ljh->first(1);
-                tmpstep.z = 0.1564;// 衔接孟祥轨迹高度。0.1564
+                tmpstep.z = 0;// 衔接孟祥轨迹高度。0.1564
                 tmpstep.theta = iter_foot_step_ljh->first(2);
                 steps_result.emplace_back(tmpstep);
             }
@@ -461,6 +461,7 @@ void communicate_PC104()
                     footstep steps[25];
                 };
                 assert(send_steps.size() <= 25 && "the plan steps is big than 25, you should turn the senddata buffer more ...");
+                CHECK(send_steps.size() <= 25);
                 sendddata SENDdata;
                 SENDdata.n = send_steps.size();
                 for (size_t i = 0; i < send_steps.size(); i++)

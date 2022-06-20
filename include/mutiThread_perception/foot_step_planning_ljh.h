@@ -11,6 +11,8 @@ std::vector<std::pair<Eigen::Vector3d, bool> > foot_step_planning(std::vector<do
 {
     assert(param_dis.size() == 11 && "your entered param is wrong");
     assert(clockwise_ == 0 || clockwise_ == 1 && "points direct is wrong");
+    CHECK(param_dis.size() == 11);
+    CHECK(clockwise_ == 0 || clockwise_ == 1);
     std::cout<<"in function foot_step_planning:"<<std::endl;
     std::cout<<"goal pose: x "<<param_dis.at(0)<<" y "<<param_dis.at(1)<<" yaw "<<param_dis.at(2)<<std::endl;
     std::cout<<"4 points: "<<endl;
@@ -29,21 +31,24 @@ std::vector<std::pair<Eigen::Vector3d, bool> > foot_step_planning(std::vector<do
     param.SetEdgeCostYaw(param, 4.0);
     param.SetEdgeCostStaticPerStep(param, 1.4);
     param.SetDebugFlag(param, false);
-    param.SetMaxStepYaw(param, pi/15);
-    param.SetMinStepYaw(param, -pi/15);        
+    param.SetMaxStepYaw(param, pi/11);
+    param.SetMinStepYaw(param, -pi/11);        
 
     param.SetFinalTurnProximity(param, 0.3);
     param.SetGoalDistanceProximity(param, 0.04);
     param.SetGoalYawProximity(param, 4.0/180.0 * pi);
-    param.SetFootPolygonExtendedLength(param, 0.03);
+    param.SetFootPolygonExtendedLength(param, 0.025);
     
     param.SetHWPOfWalkDistacne(param,1.3);
 
+    param.SetHWPOfFinalTurnDistacne(param,1.30);
+    param.SetHWPOfFinalWalkDistacne(param,1.30);
+
     param.SetMaxStepLength(param, 0.12);
     param.SetMinStepLength(param,-0.12);
-    param.SetMaxStepWidth(param,0.24);
+    param.SetMaxStepWidth(param,0.22);
     param.SetMinStepWidth(param,0.16);
-    param.SetMaxStepReach(param,sqrt(param.MaxStepWidth * param.MaxStepWidth + param.MaxStepLength * param.MaxStepLength));
+    param.SetMaxStepReach(param,sqrt((param.MaxStepWidth-param.MinStepWidth) * (param.MaxStepWidth-param.MinStepWidth) + param.MaxStepLength * param.MaxStepLength));
 
     std:: cout<< "gridSizeXY is "<<latticepoint.getGridSizeXY(latticepoint)<<std::endl;
     std:: cout<< "gridSizeYaw is "<<latticepoint.getGridSizeYaw(latticepoint)<<std::endl;
@@ -115,10 +120,12 @@ std::vector<std::pair<Eigen::Vector3d, bool> > foot_step_planning(std::vector<do
         steps.emplace_back(make_pair(foot_x_y_yaw, is_left));
     }
     
-    ljh::path::footstep_planner::PlotChecker pltChecker;
-    auto outcome = footstepPlanner.getFootstepSeries();
+    // ljh::path::footstep_planner::PlotChecker pltChecker;
+    // auto outcome = footstepPlanner.getFootstepSeries();
+
+    // footstepPlanner.plotAccurateSearchOutcome();
     // pltChecker.plotSearchOutcome2(outcome,goalPose,startPose);
-    pltChecker.plotAccurateSearchOutcome(Out,goalPose,startPose);
+    // pltChecker.plotAccurateSearchOutcome(Out,goalPose,startPose);
     // std::cout<<"Collide 1:"<<checker.isTwoFootCollidedAndPlot(Out.at(7))<<std::endl;
     // std::cout<<"Distance of last two: "<<
     // sqrt(pow(Out[Out.size()-1].getSecondStep().getX()-Out[Out.size()-2].getSecondStep().getX(),2)+
